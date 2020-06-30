@@ -175,8 +175,10 @@ public class GameStatus : MonoBehaviour
         PauseGame(_paused);
 
         NotificationCenter.DefaultCenter().AddObserver(this,"PlayLevel");
+        NotificationCenter.DefaultCenter().AddObserver(this, "LevelComplete");
 
-        
+
+
     }
 
     private void Start()
@@ -401,5 +403,10 @@ public class GameStatus : MonoBehaviour
     public void BackToMenu()
     {
         GAME_STATE = eGameState.mainMenu;
+    }
+
+    void LevelComplete()
+    {
+        Debug.Log("Level Completed");
     }
 }

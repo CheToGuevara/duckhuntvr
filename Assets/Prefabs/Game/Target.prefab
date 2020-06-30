@@ -9,7 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8033427126273837119}
-  m_Layer: 0
+  - component: {fileID: 5823015906581487675}
+  - component: {fileID: 5231183804108082390}
+  m_Layer: 8
   m_Name: Target
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31,6 +33,31 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5823015906581487675
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3242426946829585215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 250db324f59b3e845bc126283d6cc060, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!65 &5231183804108082390
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3242426946829585215}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.2, y: 0.2, z: 0.01}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6445730433567492815
 GameObject:
   m_ObjectHideFlags: 0
@@ -42,8 +69,7 @@ GameObject:
   - component: {fileID: 2809383905430982870}
   - component: {fileID: 4571343681289922696}
   - component: {fileID: 7836369050133946895}
-  - component: {fileID: 6932477864592189445}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TargetDuck
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,17 +137,3 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
---- !u!136 &6932477864592189445
-CapsuleCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6445730433567492815}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  m_Radius: 0.5000001
-  m_Height: 2
-  m_Direction: 1
-  m_Center: {x: 0.000000059604645, y: 0, z: -0.00000008940697}
