@@ -6,7 +6,6 @@ using UnityEngine;
 
 public class TargetFactory : MonoBehaviour
 {
-    public GameObject Target;
     public GameObject[] targetList;//Change it to fixed array
 
 
@@ -18,13 +17,13 @@ public class TargetFactory : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        int numOfTargets = (GameStatus.S.hardLevel) ? 30 : 20;
+        int numOfTargets = (GameStatus.S.hardLevel) ? GameStatus.UISO.HardTarget : GameStatus.UISO.MedTarget;
         targetList = new GameObject[numOfTargets];
         activeTarget = new GameObject[3];
 
         for (int i = 0; i < numOfTargets; i++)
         {
-            GameObject newTarget = Instantiate(Target, this.transform);
+            GameObject newTarget = Instantiate(GameStatus.UISO.Target, this.transform);
             newTarget.SetActive(false);
             targetList[i] = newTarget;
         }
@@ -33,8 +32,10 @@ public class TargetFactory : MonoBehaviour
         activeTarget[2] = targetList[2];
 
         NotificationCenter.DefaultCenter().AddObserver(this, "TargetHitted");
+        NotificationCenter.DefaultCenter().AddObserver(this, "StartGame");
 
-        Invoke("StartGame", 0.5f);
+
+        //Invoke("StartGame", 0.5f);
 
     }
 
@@ -46,6 +47,8 @@ public class TargetFactory : MonoBehaviour
 
     void StartGame()
     {
+
+        Debug.Log("TargetStart");
         Invoke("SpamTarget", 0.5f);
     }
 

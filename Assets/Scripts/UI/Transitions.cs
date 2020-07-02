@@ -24,25 +24,29 @@ public class Transitions : MonoBehaviour
 
     }
 
-    public Image imageFade;
+    
 
     public float timeTransitions = 1.0f;
     public float progress = 0;
 
-    Color colorFadeIn;
-    Color colorFadeOut;
+    Vector3 scaledestiny;
+    Vector3 scaleorigin;
+    BoxCollider m_collider;
+
+    
     float step = 0;
 
     bool showing = false;
     // Start is called before the first frame update
     void Start()
     {
-        colorFadeIn = Color.white;
-        colorFadeOut = Color.white;
-        colorFadeOut.a = 0;
+        step = timeTransitions;
+        scaledestiny = Vector3.zero;
+        scaleorigin = new Vector3(0.0064f, 1, 0.004f);
+        m_collider = GetComponent<BoxCollider>();
+        
 
-        imageFade.color = colorFadeOut;
-        HideWidgets();
+      
     }
 
     // Update is called once per frame
@@ -58,28 +62,26 @@ public class Transitions : MonoBehaviour
         //loadingText.gameObject.SetActive(true);
     }
 
-    void HideWidgets()
-    {
-        
-    }
+  
 
 
     public bool FadeIn()
     {
-
+        m_collider.enabled = true;
         if (!showing)
         {
             showing = true;
-            NotificationCenter.DefaultCenter().PostNotification(this, "DisableButtonBehaviour");
+            //NotificationCenter.DefaultCenter().PostNotification(this, "DisableButtonBehaviour");
             progress = 0;
         }
         step +=  Time.deltaTime;
-
-        imageFade.color = Color.Lerp(colorFadeOut, colorFadeIn, step/timeTransitions);
+       
+        transform.localScale = Vector3.Lerp(scaledestiny, scaleorigin,  step/timeTransitions);
         if (step > timeTransitions)
         {
             ShowWidgets();
             step = timeTransitions;
+            m_collider.enabled = true;
             return true;
         }
         else
@@ -88,15 +90,15 @@ public class Transitions : MonoBehaviour
     public bool FadeOut()
     {
         step -= Time.deltaTime;
-        HideWidgets();
 
-        imageFade.color = Color.Lerp(colorFadeOut, colorFadeIn, step / timeTransitions);
+        transform.localScale = Vector3.Lerp(scaledestiny, scaleorigin, step / timeTransitions);
         if (step < 0)
         {
             
             showing = false;
-            NotificationCenter.DefaultCenter().PostNotification(this, "EnableButtonBehaviour");
+            //NotificationCenter.DefaultCenter().PostNotification(this, "EnableButtonBehaviour");
             step = 0;
+            m_collider.enabled = false;
             return true;
         }
         else

@@ -19,10 +19,11 @@ public class GameStatus : MonoBehaviour
     {
         // Decimal      // Binary
         none = 0,       // 00000000
-        mainMenu = 1,   // 00000001
-        inGame =2,
-        transition = 4,  // 00001000
-        gameOver = 8,  // 00010000
+        loading = 1,
+        mainMenu = 2,   // 00000001
+        inGame =4,
+        transition = 8,  // 00001000
+        gameOver = 16,  // 00010000
         closing = 32,
         all = 0xFFFFFFF // 11111111111111111111111111111111
     }
@@ -61,7 +62,7 @@ public class GameStatus : MonoBehaviour
     }
 
     static private bool _PAUSED = false;
-    static private eGameState _GAME_STATE = eGameState.mainMenu;
+    static private eGameState _GAME_STATE = eGameState.loading;
 
     static public bool PAUSED
     {
@@ -146,10 +147,8 @@ public class GameStatus : MonoBehaviour
 
 
     public PlayerProgress playerProgress;
+
     public bool hardLevel=true;
-
-    string _currentScene = "";
-
    
 
 
@@ -169,13 +168,14 @@ public class GameStatus : MonoBehaviour
         // This strange use of _gameState and _paused as an intermediary in the following 
         //  lines is solely to stop the Warning from popping up in the Console telling you 
         //  that _gameState was assigned but not used.
-        _gameState = eGameState.mainMenu;
+        _gameState = eGameState.loading;
         GAME_STATE = _gameState;
         _paused = false;
         PauseGame(_paused);
 
         NotificationCenter.DefaultCenter().AddObserver(this,"PlayLevel");
         NotificationCenter.DefaultCenter().AddObserver(this, "LevelComplete");
+        NotificationCenter.DefaultCenter().AddObserver(this, "PauseGameToggle");
 
 
 
@@ -194,14 +194,14 @@ public class GameStatus : MonoBehaviour
     public void PauseGame(bool toPaused)
     {
         PAUSED = toPaused;
-        /*if (PAUSED)
+        if (PAUSED)
         {
             Time.timeScale = 0;
         }
         else
         {
             Time.timeScale = 1;
-        }*/
+        }
     }
 
     void GameStateChanged()
@@ -247,7 +247,7 @@ public class GameStatus : MonoBehaviour
     public void GoToGame()
     {
         nextStep = eGameState.inGame;
-        StartCoroutine(CRTransition());
+        StartCoroutine(LoadAsyncScene());
     }
 
     public void SavePlayerProgress()
@@ -272,21 +272,23 @@ public class GameStatus : MonoBehaviour
 
     IEnumerator StartGame()
     {
-        while (!Transitions.S.FadeIn())
+        /*while (!Transitions.S.FadeIn())
         {
             yield return null;
-        }
+        }*/
 
  
         yield return new WaitForSeconds(0.1f);
-        GAME_STATE = eGameState.mainMenu;
         ReadPlayerProgress();
+        
+        
 
 
         while (!Transitions.S.FadeOut())
         {
             yield return null;
         }
+        GAME_STATE = eGameState.mainMenu;
 
     }
 
@@ -310,16 +312,8 @@ public class GameStatus : MonoBehaviour
 
 
 
-    public void PlayLevel(Notification levelNotification)
-    {
-        
-        
-        StartCoroutine(LoadYourAsyncScene());
 
-
-    }
-
-    IEnumerator LoadYourAsyncScene()
+    IEnumerator LoadAsyncScene()
     {
         // The Application loads the Scene in the background as the current Scene runs.
         // This is particularly good for creating loading screens.
@@ -330,8 +324,7 @@ public class GameStatus : MonoBehaviour
             yield return null;
         }
 
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("LevelAquarelle",LoadSceneMode.Additive);
-        _currentScene = "LevelAquarelle";
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(1,LoadSceneMode.Additive);
         // Wait until the asynchronous scene fully loads
         while (!asyncLoad.isDone)
         {
@@ -344,6 +337,7 @@ public class GameStatus : MonoBehaviour
         {
             yield return null;
         }
+        NotificationCenter.DefaultCenter().PostNotification(this, "StartCountDown");
     }
 
     public void GoBackFromLevel()
@@ -360,15 +354,14 @@ public class GameStatus : MonoBehaviour
             yield return null;
         }
 
-        if (!_currentScene.Equals(""))
-        {
-            AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync(_currentScene);
+        
+            AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync(1);
             while (!asyncUnload.isDone)
             {
                 yield return null;
             }
-        }
-        _currentScene = "";
+        
+        
         PauseGame(false);
         
 

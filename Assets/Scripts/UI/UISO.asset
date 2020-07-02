@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: UISO
   m_EditorClassIdentifier: 
   MainBGImg: {fileID: 21300000, guid: 0f316e71ad6135246a34bb67cafe00fe, type: 3}
-  Target: {fileID: 0}
+  Target: {fileID: 3242426946829585215, guid: 5271dede4191f194fb501e5a87b991bf, type: 3}
+  Bullet: {fileID: 7864743895520620872, guid: 2d5a68d7c694a264fb1e048666ec5288, type: 3}

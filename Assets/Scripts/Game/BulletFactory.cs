@@ -4,26 +4,37 @@ using UnityEngine;
 
 public class BulletFactory : MonoBehaviour
 {
-    public GameObject Target;
     public GameObject[] targetList;//Change it to fixed array
 
 
     int currentTarget = 0;
     bool fired = false;
+    bool started = false;
 
-    // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
+   
+
         GameObject BulletParent = new GameObject("BulletParent");
-        int numOfTargets = (GameStatus.S.hardLevel) ? 30 : 20;
+        int numOfTargets = 10;
         targetList = new GameObject[numOfTargets];
 
         for (int i = 0; i < numOfTargets; i++)
         {
-            GameObject newTarget = Instantiate(Target, BulletParent.transform);
+            GameObject newTarget = Instantiate(GameStatus.UISO.Bullet, BulletParent.transform);
             newTarget.SetActive(false);
             targetList[i] = newTarget;
         }
+
+        NotificationCenter.DefaultCenter().AddObserver(this, "StartGame");
+    }
+
+    // Start is called before the first frame update
+    void StartGame()
+    {
+        Debug.Log("BulletStart");
+        started = true;
+        
         
 
     }
@@ -32,19 +43,24 @@ public class BulletFactory : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonUp("Fire1"))
+        if (started)
         {
-            holdDownPauseTime = Time.time;
-        }
-        if (Input.GetButtonUp("Fire1"))
-        {
-            float holdDownTime = Time.time - holdDownPauseTime;
-            if (holdDownTime > 1.0f)
+            if (Input.GetButtonDown("Fire1"))
             {
-                Debug.Log("Pause");
-                NotificationCenter.DefaultCenter().PostNotification(this, "Pause");
-            }else
-                Fire();
+                holdDownPauseTime = Time.time;
+            }
+            if (Input.GetButtonUp("Fire1"))
+            {
+                float holdDownTime = Time.time - holdDownPauseTime;
+                Debug.Log(holdDownTime);
+                if (holdDownTime > 1.0f)
+                {
+                    Debug.Log("Pause");
+                    NotificationCenter.DefaultCenter().PostNotification(this, "PauseGameToggle");
+                }
+                else
+                    Fire();
+            }
         }
     }
 

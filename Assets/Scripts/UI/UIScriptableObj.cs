@@ -18,6 +18,12 @@ public class UIScriptableObj : ScriptableObject
 
 
     public GameObject Target;
+    public GameObject Bullet;
+
+    public float HardTime = 120;
+    public int HardTarget = 30;
+    public float MedTime = 180;
+    public int MedTarget = 20;
 
 
 
