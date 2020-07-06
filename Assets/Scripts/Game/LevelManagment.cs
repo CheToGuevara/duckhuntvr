@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+
+
 public class LevelManagment : MonoBehaviour
 {
 
     public Text TimeLeftText;
     public Text TargetLeftText;
     public Text CountDownText;
+    public AudioClip pauseClip;
+
+    AudioSource levelSound;
 
     bool started = false;
     float gameTime = 120;
@@ -19,6 +24,9 @@ public class LevelManagment : MonoBehaviour
     {
         NotificationCenter.DefaultCenter().AddObserver(this, "StartCountDown");
         NotificationCenter.DefaultCenter().AddObserver(this, "TargetHit");
+        
+
+        levelSound = GetComponent<AudioSource>();
 
         remainTargets = (GameStatus.S.hardLevel) ? GameStatus.UISO.HardTarget : GameStatus.UISO.MedTarget;
         gameTime = (GameStatus.S.hardLevel) ? GameStatus.UISO.HardTime : GameStatus.UISO.MedTime;
@@ -75,6 +83,8 @@ public class LevelManagment : MonoBehaviour
         NotificationCenter.DefaultCenter().PostNotification(this, "StartGame");
         started = true;
     }
+
+    float holdDownPauseTime;
     // Update is called once per frame
     void Update()
     {
@@ -87,6 +97,24 @@ public class LevelManagment : MonoBehaviour
                 started = false;
                 NotificationCenter.DefaultCenter().PostNotification(this, "GameOver");
             }
+
+            if (Input.GetButtonDown("Fire1"))
+            {
+                holdDownPauseTime = Time.time;
+            }
+            if (Input.GetButtonUp("Fire1"))
+            {
+                float holdDownTime = Time.time - holdDownPauseTime;
+                
+                if (holdDownTime > 1.0f)
+                {
+                    Debug.Log("Pause");
+                    NotificationCenter.DefaultCenter().PostNotification(this, "PauseGameToggle");
+                    levelSound.clip = pauseClip;
+                    levelSound.Play();
+                }
+                
+            }
         }
     }
 
@@ -96,7 +124,12 @@ public class LevelManagment : MonoBehaviour
         TargetLeftText.text = remainTargets.ToString();
         if (remainTargets==0)
         {
-            NotificationCenter.DefaultCenter().PostNotification(this, "LevelComplete", gameTime);
+            started = false;
+            LevelTime newTLevel = new LevelTime();
+            newTLevel.newTime = gameTime;
+            NotificationCenter.DefaultCenter().PostNotification(this, "LevelComplete", newTLevel);
         }
     }
+
+    
 }

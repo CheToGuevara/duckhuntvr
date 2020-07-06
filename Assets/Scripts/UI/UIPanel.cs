@@ -24,12 +24,14 @@ public class UIPanel : MonoBehaviour
     {
         medBT.interactable = true;
         hardBT.interactable = false;
+        GameStatus.S.hardLevel = true;
     }
 
     public void change2Medium()
     {
         medBT.interactable = false;
         hardBT.interactable = true;
+        GameStatus.S.hardLevel = false;
     }
 
     

@@ -21,7 +21,7 @@ public class GameStatus : MonoBehaviour
         none = 0,       // 00000000
         loading = 1,
         mainMenu = 2,   // 00000001
-        inGame =4,
+        inGame = 4,
         transition = 8,  // 00001000
         gameOver = 16,  // 00010000
         closing = 32,
@@ -113,16 +113,16 @@ public class GameStatus : MonoBehaviour
         }
     }
 
-   
 
-    
+
+
 
     public delegate void CallbackDelegate(); // Set up a generic delegate type.
     static public event CallbackDelegate GAME_STATE_CHANGE_DELEGATE;
     static public event CallbackDelegate PAUSED_CHANGE_DELEGATE;
 
 
-    
+
 
     [Header("These reflect static fields and are otherwise unused")]
     [SerializeField]
@@ -131,7 +131,7 @@ public class GameStatus : MonoBehaviour
     protected eGameState _gameState;
 
 
-  
+
 
 
     [SerializeField]
@@ -148,8 +148,8 @@ public class GameStatus : MonoBehaviour
 
     public PlayerProgress playerProgress;
 
-    public bool hardLevel=true;
-   
+    public bool hardLevel = true;
+
 
 
     private void Awake()
@@ -157,7 +157,7 @@ public class GameStatus : MonoBehaviour
 
 
         S = this;
-        
+
 
         // Rather than use the anonymous delegate that was here previously, I've instead
         //  created a method that conforms to the GAME_STATE_CHANGE_DELEGATE, thereby 
@@ -173,8 +173,9 @@ public class GameStatus : MonoBehaviour
         _paused = false;
         PauseGame(_paused);
 
-        NotificationCenter.DefaultCenter().AddObserver(this,"PlayLevel");
+        NotificationCenter.DefaultCenter().AddObserver(this, "PlayLevel");
         NotificationCenter.DefaultCenter().AddObserver(this, "LevelComplete");
+        NotificationCenter.DefaultCenter().AddObserver(this, "GameOver");
         NotificationCenter.DefaultCenter().AddObserver(this, "PauseGameToggle");
 
 
@@ -241,7 +242,7 @@ public class GameStatus : MonoBehaviour
     public void GoToMainScreen()
     {
         nextStep = eGameState.mainMenu;
-        StartCoroutine(CRTransition());
+        StartCoroutine(UnloadScenes());
     }
 
     public void GoToGame()
@@ -260,13 +261,13 @@ public class GameStatus : MonoBehaviour
     public void LevelCompleted(double score)
     {
         GAME_STATE = eGameState.gameOver;
-  
+
 
     }
 
     public void RestartLevel()
     {
-   
+
         GAME_STATE = eGameState.inGame;
     }
 
@@ -277,11 +278,11 @@ public class GameStatus : MonoBehaviour
             yield return null;
         }*/
 
- 
+
         yield return new WaitForSeconds(0.1f);
         ReadPlayerProgress();
-        
-        
+
+
 
 
         while (!Transitions.S.FadeOut())
@@ -324,7 +325,7 @@ public class GameStatus : MonoBehaviour
             yield return null;
         }
 
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync(1,LoadSceneMode.Additive);
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("DuckHunt", LoadSceneMode.Additive);
         // Wait until the asynchronous scene fully loads
         while (!asyncLoad.isDone)
         {
@@ -342,34 +343,41 @@ public class GameStatus : MonoBehaviour
 
     public void GoBackFromLevel()
     {
-       
+
         StartCoroutine(UnloadScenes());
     }
 
     IEnumerator UnloadScenes()
     {
-        
+
         while (!Transitions.S.FadeIn())
         {
             yield return null;
         }
 
-        
-            AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync(1);
-            while (!asyncUnload.isDone)
-            {
-                yield return null;
-            }
-        
-        
+
+        AsyncOperation asyncUnload = SceneManager.UnloadSceneAsync("DuckHunt");
+        while (!asyncUnload.isDone)
+        {
+            yield return null;
+        }
+
+
         PauseGame(false);
-        
+        GAME_STATE = eGameState.mainMenu;
+        while (!Transitions.S.FadeOut())
+        {
+            yield return null;
+        }
+
+
+
 
 
 
     }
-    
-   
+
+
 
 
     /// <summary>
@@ -378,16 +386,16 @@ public class GameStatus : MonoBehaviour
 
 
     void ReadPlayerProgress()
-    { 
-        playerProgress =  SaveSystem.LoadPlayer();
+    {
+        playerProgress = SaveSystem.LoadPlayer();
 
     }
 
     public void DeleteProgress()
     {
-        
+
         playerProgress = SaveSystem.DeleteProgress();
-        
+
     }
 
 
@@ -398,8 +406,31 @@ public class GameStatus : MonoBehaviour
         GAME_STATE = eGameState.mainMenu;
     }
 
-    void LevelComplete()
+    void LevelComplete(Notification newLevelTime)
     {
+        float newtime = (newLevelTime.data as LevelTime).newTime;
+        newtime = ((hardLevel) ?UISO.HardTime:UISO.MedTime)-newtime;
+        bool record = playerProgress.UpdateLevel(hardLevel, newtime);
         Debug.Log("Level Completed");
+        string gameOverMsg;
+        if (record)
+        {
+            gameOverMsg = "NEW RECORD!\n YOU DID IT IN\n" + newtime.ToString("##.##") + " seconds";
+            SavePlayerProgress();
+        }
+        else
+        {
+            float oldtime = (hardLevel) ? playerProgress.secondsHard : playerProgress.secondsMed;
+            gameOverMsg = "GOOD PLAY!\n BUT THE RECORD IS IN\n" + oldtime.ToString("##.##") + " seconds\n Try again!";
+        }
+        GAME_STATE = eGameState.gameOver;
+        NotificationCenter.DefaultCenter().PostNotification(this, "ResultMsg", gameOverMsg);
+    }
+
+    void GameOver()
+    {
+        GAME_STATE = eGameState.gameOver;
+        string gameOverMsg = "OH! GAMEOVER!\n You didn't in time";
+        NotificationCenter.DefaultCenter().PostNotification(this, "ResultMsg", gameOverMsg);
     }
 }

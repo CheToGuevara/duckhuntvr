@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class BulletFactory : MonoBehaviour
 {
     public GameObject[] targetList;//Change it to fixed array
@@ -11,10 +12,12 @@ public class BulletFactory : MonoBehaviour
     bool fired = false;
     bool started = false;
 
+    AudioSource gunSound;
+
     private void Start()
     {
-   
 
+        gunSound = GetComponent<AudioSource>();
         GameObject BulletParent = new GameObject("BulletParent");
         int numOfTargets = 10;
         targetList = new GameObject[numOfTargets];
@@ -52,13 +55,7 @@ public class BulletFactory : MonoBehaviour
             if (Input.GetButtonUp("Fire1"))
             {
                 float holdDownTime = Time.time - holdDownPauseTime;
-                Debug.Log(holdDownTime);
-                if (holdDownTime > 1.0f)
-                {
-                    Debug.Log("Pause");
-                    NotificationCenter.DefaultCenter().PostNotification(this, "PauseGameToggle");
-                }
-                else
+                if (holdDownTime < 1.0f)
                     Fire();
             }
         }
@@ -77,6 +74,7 @@ public class BulletFactory : MonoBehaviour
         target.GetComponent<Bullet>().Fire(this.transform.forward);
         currentTarget = (currentTarget+1)%targetList.Length;
         fired = true;
+        gunSound.Play();
         Invoke("Reload",0.5f);
     }
 

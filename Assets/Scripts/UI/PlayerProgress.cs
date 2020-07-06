@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 
+
+public class LevelTime
+{
+    public float newTime=0;
+}
+
 [Serializable]
 public class PlayerProgress
 {
@@ -29,7 +35,7 @@ public class PlayerProgress
     {
         if (hardLevel)
         {
-            if (newtime > secondsHard)
+            if (newtime < secondsHard)
             {
                 secondsHard = newtime;
                 return true;
@@ -38,7 +44,7 @@ public class PlayerProgress
         }
         else
         {
-            if (newtime > secondsMed)
+            if (newtime < secondsMed)
             {
                 secondsMed = newtime;
                 return true;

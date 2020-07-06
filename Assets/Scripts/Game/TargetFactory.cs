@@ -4,19 +4,24 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
 
+[RequireComponent(typeof(AudioSource))]
 public class TargetFactory : MonoBehaviour
 {
     public GameObject[] targetList;//Change it to fixed array
-
+    AudioSource birdSound;
 
     int currentTarget = 0;
     int currentActiveTarget = 0;
 
     GameObject[] activeTarget;
 
+    GameObject player;
+
     // Start is called before the first frame update
     void Start()
     {
+        player = GameObject.Find("Player");
+        birdSound = GetComponent<AudioSource>();
         int numOfTargets = (GameStatus.S.hardLevel) ? GameStatus.UISO.HardTarget : GameStatus.UISO.MedTarget;
         targetList = new GameObject[numOfTargets];
         activeTarget = new GameObject[3];
@@ -60,7 +65,7 @@ public class TargetFactory : MonoBehaviour
             if (checkAllTargetFalse())
             {
                 NotificationCenter.DefaultCenter().RemoveObserver(this, "TargetHitted");
-                NotificationCenter.DefaultCenter().PostNotification(this, "LevelComplete");
+                NotificationCenter.DefaultCenter().RemoveObserver(this, "StartGame");
             }
             
         }
@@ -95,7 +100,7 @@ public class TargetFactory : MonoBehaviour
     void SpamTarget()
     {
         int index = checkMaxTarget();
-        if (index < 0)
+        if (index < 0 || currentTarget >= targetList.Length)
         {
             
             return;
@@ -104,10 +109,12 @@ public class TargetFactory : MonoBehaviour
         GameObject target = targetList[currentTarget];
         target.SetActive(true);
         activeTarget[index] = target;
-
-        target.transform.position = (Random.onUnitSphere * 2) + Vector3.one;
+        Vector3 vectorUnitario = Random.onUnitSphere;
+        vectorUnitario.y = Mathf.Abs(vectorUnitario.y);
+        target.transform.position = vectorUnitario.normalized * Random.Range(1,3) + player.transform.position;
         target.transform.rotation = Quaternion.LookRotation(-target.transform.position);
         currentTarget++;
+        birdSound.Play();
         Invoke("SpamTarget", 2.0f);
     }
 

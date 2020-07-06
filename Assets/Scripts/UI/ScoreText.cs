@@ -20,9 +20,9 @@ public class ScoreText : MonoBehaviour
     void updateValue()
     {
         if (Hard)
-            _text.text = GameStatus.S.playerProgress.secondsHard.ToString("##.##") + "s";
+            _text.text = GameStatus.S.playerProgress.secondsHard.ToString("##.##") + " s";
         else
-            _text.text = GameStatus.S.playerProgress.secondsMed.ToString("##.##") + "s";
+            _text.text = GameStatus.S.playerProgress.secondsMed.ToString("##.##") + " s";
     }
 
     private void OnEnable()

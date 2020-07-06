@@ -29,7 +29,7 @@ public class Bullet : MonoBehaviour
     void OnCollisionEnter(Collision collision)
     {
         NotificationCenter.DefaultCenter().PostNotification(this, "TargetHit");
-        Debug.Log("Target Hit");
+        //Debug.Log("Target Hit");
         Stop();
     }
 

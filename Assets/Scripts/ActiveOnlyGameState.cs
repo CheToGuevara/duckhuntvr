@@ -6,6 +6,7 @@ public class ActiveOnlyGameState : MonoBehaviour {
 
     // eGameStates is a System.Flags enum, so many values can be stored in a single field.
 
+    AudioSource playableAudio;
 
     public enum ePauseEffect
     {
@@ -24,7 +25,7 @@ public class ActiveOnlyGameState : MonoBehaviour {
     // Use this for initialization
     public virtual void Start()
     {
-
+        playableAudio = GetComponent<AudioSource>();
         // Also make sure to set self based on the current state when awakened
         isActive();
 
@@ -64,6 +65,10 @@ public class ActiveOnlyGameState : MonoBehaviour {
                 shouldBeActive = false;
             }
         }
+        
         gameObject.SetActive(shouldBeActive);
+        if (shouldBeActive)
+            if (playableAudio)
+                playableAudio.Play();
     }
 }
